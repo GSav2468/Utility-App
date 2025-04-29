@@ -14,7 +14,7 @@ using namespace std;
 
 const int ITEM_COUNT = 4;
 
-string codes[ITEM_COUNT] = {"A1", "A2", "B1", "B2"};
+string codes[ITEM_COUNT] = {"1", "2", "3", "4"};
 string names[ITEM_COUNT] = {"Cocola", "Water", "Crisps", "Mars Bar"};
 string categories[ITEM_COUNT] = {"Drink", "Drink", "Snack", "Snack"};
 double prices[ITEM_COUNT] = {1.50, 1.00, 1.25, 1.50};
