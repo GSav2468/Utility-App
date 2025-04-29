@@ -1,146 +1,126 @@
+
 #include <iostream>
 
-#include <vector>
-#include <map>
 #include <iomanip>
 #include <limits>
+#include <string>
+
 using namespace std;
 
+const int ITEM_COUNT = 4;
 
-class Item {
-public:
+string codes[ITEM_COUNT] = {"A1", "A2", "B1", "B2"};
+string names[ITEM_COUNT] = {"Cocola", "Water", "Crisps", "Mars Bar"};
+string categories[ITEM_COUNT] = {"Drink", "Drink", "Snack", "Snack"};
+double prices[ITEM_COUNT] = {1.50, 1.00, 1.25, 1.50};
+int stocks[ITEM_COUNT] = {5, 3, 4, 2};
+
+double userBalance = 0.0;
+
+void displayItems() {
+    cout << "\n======= Available Items =======\n";
+    for (int i = 0; i < ITEM_COUNT; i++) {
+        cout << left << setw(4) << codes[i]
+             << setw(15) << names[i]
+             << setw(10) << categories[i]
+             << "$" << fixed << setprecision(2) << prices[i]
+             << " (" << stocks[i] << " left)\n";
+    }
+    cout << "===============================\n";
+    cout << "Current Balance: $" << fixed << setprecision(2) << userBalance << "\n";
+}
+
+void insertMoney() {
+    double amount;
+    cout << "Enter amount to insert: $";
+    while (!(cin >> amount) || amount <= 0) {
+        cout << "Invalid input. Please enter a positive number: $";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+    userBalance += amount;
+    cout << "Balance updated. Current balance: $" << fixed << setprecision(2) << userBalance << "\n";
+}
+
+void suggestItem(string category) {
+    if (category == "Drink") {
+        cout << "Why not try a snack to go with your drink?\n";
+    } else if (category == "Snack") {
+        cout << "A drink might go well with that!\n";
+    }
+}
+
+void buyItem() {
     string code;
-    string name;
-    string category;
-    double price;
-    int stock;
+    cout << "Enter item code to purchase: ";
+    cin >> code;
 
-    Item(string c, string n, string cat, double p, int s)
-        : code(c), name(n), category(cat), price(p), stock(s) {}
-
-    void display() const {
-        cout << left << setw(4) << code
-             << setw(15) << name
-             << setw(12) << category
-             << "$" << fixed << setprecision(2) << price
-             << " (" << stock << " left)\n";
-    }
-};
-
-
-class VendingMachine {
-private:
-    map<string, Item> items;
-    double userBalance;
-
-public:
-    VendingMachine() : userBalance(0.0) {
-        
-        items["A1"] = Item("A1", "cocola", "Drink", £1.50, 5);
-        items["A2"] = Item("A2", "water", "Drink", £1.00, 3);
-        items["B1"] = Item("B1", "crips", "Snack", £1.25, 4);
-        items["B2"] = Item("B2", "mars bar", "Snack", £1.50, 2);
-    }
-
-    void displayMenu() const {
-        cout << "\n======= Available Items =======\n";
-        for (const auto& pair : items) {
-            pair.second.display();
+    int index = -1;
+    for (int i = 0; i < ITEM_COUNT; i++) {
+        if (code == codes[i]) {
+            index = i;
+            break;
         }
-        cout << "===============================\n";
-        cout << "Current Balance: $" << fixed << setprecision(2) << userBalance << "\n";
     }
 
-    void insertMoney() {
-        double amount;
-        cout << "Enter amount to insert: $";
-        while (!(cin >> amount) || amount <= 0) {
-            cout << "Invalid input. Please enter a positive number: $";
+    if (index == -1) {
+        cout << "Item not found. Try again.\n";
+        return;
+    }
+
+    if (stocks[index] <= 0) {
+        cout << "Sorry, " << names[index] << " is out of stock.\n";
+        return;
+    }
+
+    if (userBalance < prices[index]) {
+        cout << "Insufficient funds. Please insert more money.\n";
+        return;
+    }
+
+    // Successful purchase
+    stocks[index]--;
+    userBalance -= prices[index];
+    cout << "Dispensing " << names[index] << "...\n";
+    suggestItem(categories[index]);
+}
+
+void returnChange() {
+    if (userBalance > 0) {
+        cout << "Returning change: $" << fixed << setprecision(2) << userBalance << "\n";
+        userBalance = 0.0;
+    }
+}
+
+int main() {
+    int choice;
+
+    do {
+        displayItems();
+        cout << "\n1. Insert Money\n2. Buy Item\n3. Return Change & Exit\n";
+        cout << "Enter your choice: ";
+        while (!(cin >> choice)) {
+            cout << "Invalid input. Please enter a number: ";
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
         }
-        userBalance += amount;
-        cout << "Balance updated. Current balance: $" << fixed << setprecision(2) << userBalance << "\n";
-    }
 
-    void selectItem() {
-        string code;
-        cout << "Enter item code to purchase: ";
-        cin >> code;
-
-        auto it = items.find(code);
-        if (it == items.end()) {
-            cout << "Item not found. try again.\n";
-            return;
+        switch (choice) {
+            case 1:
+                insertMoney();
+                break;
+            case 2:
+                buyItem();
+                break;
+            case 3:
+                returnChange();
+                cout << "Thank you for using the vending machine!\n";
+                break;
+            default:
+                cout << "Please enter a valid option.\n";
         }
 
-        Item& selected = it->second;
-        if (selected.stock <= 0) {
-            cout << "Sorry, " << selected.name << " out of stock.\n";
-            return;
-        }
+    } while (choice != 3);
 
-        if (userBalance < selected.price) {
-            cout << "Insufficient funds. Please insert more money.\n";
-            return;
-        }
-
-     
-        selected.stock--;
-        userBalance -= selected.price;
-        cout << "Dispensing " << selected.name << "...\n";
-        suggestItem(selected.category);
-    }
-
-    void returnChange() {
-        if (userBalance > 0) {
-            cout << "Returning change: $" << fixed << setprecision(2) << userBalance << "\n";
-            userBalance = 0.0;
-        }
-    }
-
-    void suggestItem(const string& category) const {
-        if (category == "Drink") {
-            cout << "Why not try a snack to go with your drink?\n";
-        } else if (category == "Snack") {
-            cout << "A drink might go well with that!\n";
-        }
-    }
-
-    void run() {
-        int choice;
-        do {
-            displayMenu();
-            cout << "\n1. Insrt Money\n2. Buy Item\n3. Return Change & Exit\n";
-            cout << "Enter your choice: ";
-            while (!(cin >> choice)) {
-                cout << "Invalid input. Please enter a number: ";
-                cin.clear();
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            }
-
-            switch (choice) {
-                case 1:
-                    insertMoney();
-                    break;
-                case 2:
-                    selectItem();
-                    break;
-                case 3:
-                    returnChange();
-                    cout << "Thank you for using the vending machine!\n";
-                    break;
-                default:
-                    cout << "Please enter a valid option.\n";
-            }
-
-        } while (choice != 3);
-    }
-};
-
-
-int main() {
-    VendingMachine machine;
-    machine.run();
     return 0;
 }
