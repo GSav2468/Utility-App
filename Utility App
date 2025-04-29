@@ -1,6 +1,11 @@
+//
+//  main.cpp
+//  App
+//
+//  Created by Gurdave Singh on 03/04/2025.
+//
 
 #include <iostream>
-
 #include <iomanip>
 #include <limits>
 #include <string>
@@ -78,7 +83,7 @@ void buyItem() {
         return;
     }
 
-    // Successful purchase
+    
     stocks[index]--;
     userBalance -= prices[index];
     cout << "Dispensing " << names[index] << "...\n";
@@ -124,3 +129,4 @@ int main() {
 
     return 0;
 }
+
